@@ -1,3 +1,4 @@
+# 使用逐步回归生成3D图
 import pandas as pd
 import statsmodels.api as sm
 import numpy as np
@@ -6,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 # 生成样本数据
-df = pd.read_excel('..\evaluation\棉花产量论文作业的数据.xlsx')
+df = pd.read_excel('F:\PythonCodeCangku\CUMCM\Code\evaluation\棉花产量论文作业的数据.xlsx')
 df.head(20)
 # 将数据转换为DataFrame
 X = df[['种子费', '化肥费', '农药费','机械费','灌溉费']]  # 自变量
@@ -40,8 +41,8 @@ coef_seed = model.params[1]
 coef_fertilizer = model.params[2]
 
 # 创建网格以绘制三维平面
-seed_range = np.linspace(X['种子费'].min(), X['种子费'].max(), 100)
-fertilizer_range = np.linspace(X['化肥费'].min(), X['化肥费'].max(), 100)
+seed_range = np.linspace(X['机械费'].min(), X['机械费'].max(), 100)
+fertilizer_range = np.linspace(X['灌溉费'].min(), X['灌溉费'].max(), 100)
 seed_grid, fertilizer_grid = np.meshgrid(seed_range, fertilizer_range)
 yield_grid = intercept + coef_seed * seed_grid + coef_fertilizer * fertilizer_grid
 
@@ -53,12 +54,12 @@ ax = fig.add_subplot(111, projection='3d')
 surface = ax.plot_surface(seed_grid, fertilizer_grid, yield_grid, cmap='viridis', alpha=0.8)
 
 # 绘制数据点
-ax.scatter(X['种子费'], X['化肥费'], Y, color='red', s=50)
+ax.scatter(X['机械费'], X['灌溉费'], Y, color='red', s=50)
 
 # 设置轴标签
-ax.set_xlabel('种子费 (X1)')
-ax.set_ylabel('化肥费 (X2)')
-ax.set_zlabel('单产 (Y)')
+ax.set_xlabel('jiXie (X1)')
+ax.set_ylabel('guanGai (X2)')
+ax.set_zlabel('danChan (Y)')
 ax.set_title('3D Regression Model')
 
 # 添加回归方程
