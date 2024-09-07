@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import math
+import random
 # ======================================================================================数据处理
 dfComponent = pd.read_excel("C:/Users/JngyEn/Downloads/2024/B题/table2/2零件.xlsx")
 dfHalfProduct = pd.read_excel("C:/Users/JngyEn/Downloads/2024/B题/table2/2半成品.xlsx")
@@ -45,33 +47,12 @@ for index, row in dfProduct.iterrows():
 # 定义一个函数来生成 xy 和 kz 变量的随机组合
 def generate_initial_solution():
     # 假设有 8 个 x 变量和 3 个 k, z 变量
-    strategy = []
-    
-    # 随机生成 8 个 x 变量 (0 或 1)
-    for i in range(1, 9):
-        x = np.random.choice([0, 1])
-        strategy.append(x)
-      
-    # 随机生成 3 个 k 变量 (0 或 1)
-    for i in range(1, 4):
-        y = np.random.choice([0, 1])
-        strategy.append(y)
-
-    # 随机生成 3 个 k 变量 (0 或 1)
-    for i in range(1, 4):
-        k = np.random.choice([0, 1])
-        strategy.append(k)
-    
-    # 随机生成 3 个 z 变量 (0 或 1)
-    for i in range(1, 3):
-        z = np.random.choice([0, 1])
-        strategy.append(z)
-    
+    strategy = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0]
     return strategy
 # 测试生成随机策略
 
-# ======================================================================================利润函数
 
+# ======================================================================================利润函数
 def total_profie(params):
 
     # 解包参数数组
@@ -271,11 +252,67 @@ def total_profie(params):
 
 # ======================================================================================模拟退火
 
+# 生成邻域解：随机翻转某一个变量的值
+def generate_neighbor_solution(current_solution):
+    new_solution = current_solution.copy()
+    # 随机选择一个变量位置
+    index = np.random.randint(0, len(current_solution) - 1)
+    # 翻转该变量的值
+    new_solution[index] = 1 - new_solution[index]
+    return new_solution
+
+# 退火算法的实现
+def simulated_annealing(initial_temp, cooling_rate, num_iterations):
+    # 1. 初始化
+    current_solution = generate_initial_solution()
+    current_profit = total_profie(current_solution)  # 使用现有的total_profie函数计算当前利润
+    
+    best_solution = current_solution.copy()
+    best_profit = current_profit
+
+    temperature = initial_temp  # 初始化温度
+
+    for iteration in range(num_iterations):
+        # 2. 生成邻域解
+        new_solution = generate_neighbor_solution(current_solution)
+        new_profit = total_profie(new_solution)
+
+        # 3. 判断是否接受新解
+        if new_profit > current_profit:
+            current_solution = new_solution
+            current_profit = new_profit
+        else:
+            # 根据退火接受概率公式决定是否接受较差解
+            accept_probability = math.exp((new_profit - current_profit) / temperature)
+            if random.random() < accept_probability:
+                current_solution = new_solution
+                current_profit = new_profit
+
+        # 4. 更新最佳解
+        if current_profit > best_profit:
+            best_solution = current_solution.copy()
+            best_profit = current_profit
+
+        # 5. 降温
+        temperature *= cooling_rate
+
+        # 6. 打印进度
+        if iteration % 100 == 0:
+            print(f"Iteration {iteration}, Current Profit: {current_profit}, Best Profit: {best_profit}")
+    
+    return best_solution, best_profit
+
+
+# 运行退火算法
+initial_temp = 1000  # 初始温度
+cooling_rate = 0.99  # 降温速率，每次迭代后温度降低的比例
+num_iterations = 10000  # 迭代次数
+random_strategy, best_profit = simulated_annealing(initial_temp, cooling_rate, num_iterations)
 
 
 # 输出最优结果
 # print("随机生成的策略参数：")
-print(f"最佳策略: {best_strategy}")
+print(f"最佳策略: {random_strategy}")
 # 输出策略中所有的 x, y, k, z 参数值
 
 # 输出 8 个 x 变量
@@ -293,4 +330,4 @@ for i in range(11, 14):
 # 输出 2 个 z 变量
 for i in range(14, 16):
     print(f"z{i-13} = {random_strategy[i]}")
-print(f"最大利润: {max_profit}")
+print(f"最大利润: {best_profit}")
