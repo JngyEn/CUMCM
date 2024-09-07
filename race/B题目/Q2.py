@@ -48,8 +48,10 @@ def get_profit_cost_yield(case_number, x1, x2, x3, x4, N):
     c_cost = N * c3
     c_detect_cost = N * c2 * x3
     
-    # 调换损失和拆解成本
+    # 调换损失
     c_lose = (1 - x3) * c_defective_num * d1
+
+    # 拆解后零件回收成本
     c_dismantle_cost = x4 * ((d2 + c3) - (a3 + b3) + ((1 - x1) * a2 + (1 - x2) * b2 + (1 - x3) * c2)) * c_defective_num
 
     # 总成本
