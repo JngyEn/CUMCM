@@ -1,0 +1,20 @@
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figure\问题三中间阶段流程图2.png}
+    \caption{中间阶段流程图}
+    \label{3-flowchart}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figure\各参数组合的利润情况.png}
+    \caption{各参数组合的利润情况}
+    \label{2-profit}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figure\单零件检测流程.png}
+    \caption{单零件检测流程}
+    \label{2-checkout}
+\end{figure}
