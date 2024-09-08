@@ -83,32 +83,6 @@ def total_profie(params):
     globals()['z2'] = z2
 
     
-    # 生产成品数，假设
-    Total_production_num = 10000
-    # ======================================================================================购买数量
-    # 半成品数量
-
-
-    # 半成品数量
-    halfProduct_1_num = Total_production_num / (1- globals()[f'halfProduct_1_defect_rate'] * (1 - y1))
-    halfProduct_2_num = Total_production_num / (1- globals()[f'halfProduct_2_defect_rate'] * (1 - y2))
-    halfProduct_3_num = Total_production_num / (1- globals()[f'halfProduct_3_defect_rate'] * (1 - y3))
-
-
-    # 零件购买数量
-    for index in range(1, 4):
-        # 动态生成变量名并进行计算
-        globals()[f'total_component_{index}_purchase_num'] = halfProduct_1_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
-
-    # 零件数量
-    for index in range(4, 7):
-        # 动态生成变量名并进行计算
-        globals()[f'total_component_{index}_purchase_num'] = halfProduct_2_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
-        
-    # 零件数量
-    for index in range(7, 9):
-        # 动态生成变量名并进行计算
-        globals()[f'total_component_{index}_purchase_num'] = halfProduct_3_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
     
 
 
@@ -132,6 +106,29 @@ def total_profie(params):
     # 成品检验决策后的次品率
     product_afterInspection_defect_rate = 1 - product_afterInspection_good_rate
 
+    # ======================================================================================购买数量
+    # 生产成品数，假设
+    Total_production_num = 10000
+    # 半成品数量
+    halfProduct_1_num = Total_production_num / (1- halfProduct_1_afterInspection_defect_rate * (1 - y1))
+    halfProduct_2_num = Total_production_num / (1- halfProduct_2_afterInspection_defect_rate * (1 - y2))
+    halfProduct_3_num = Total_production_num / (1- halfProduct_3_afterInspection_defect_rate * (1 - y3))
+
+
+    # 零件购买数量
+    for index in range(1, 4):
+        # 动态生成变量名并进行计算
+        globals()[f'total_component_{index}_purchase_num'] = halfProduct_1_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
+
+    # 零件数量
+    for index in range(4, 7):
+        # 动态生成变量名并进行计算
+        globals()[f'total_component_{index}_purchase_num'] = halfProduct_2_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
+        
+    # 零件数量
+    for index in range(7, 9):
+        # 动态生成变量名并进行计算
+        globals()[f'total_component_{index}_purchase_num'] = halfProduct_3_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
 
     # ======================================================================================购买价格
     # 所有的零件购买价格
@@ -167,9 +164,9 @@ def total_profie(params):
     total_halfProduct_inspection_cost = 0
 
     # 所有半成品的检测成本
-    total_halfProduct_1_inspection_cost = y1 * Total_production_num / (1 - globals()[f'halfProduct_1_defect_rate'] ) * globals()[f'single_halfProduct_1_inspection_cost']
-    total_halfProduct_2_inspection_cost = y2 * Total_production_num / (1 - globals()[f'halfProduct_2_defect_rate'] ) * globals()[f'single_halfProduct_2_inspection_cost']
-    total_halfProduct_3_inspection_cost = y3 * Total_production_num / (1 - globals()[f'halfProduct_3_defect_rate'] ) * globals()[f'single_halfProduct_3_inspection_cost']
+    total_halfProduct_1_inspection_cost = y1 * Total_production_num / (1 - halfProduct_1_afterInspection_defect_rate ) * globals()[f'single_halfProduct_1_inspection_cost']
+    total_halfProduct_2_inspection_cost = y2 * Total_production_num / (1 - halfProduct_2_afterInspection_defect_rate ) * globals()[f'single_halfProduct_2_inspection_cost']
+    total_halfProduct_3_inspection_cost = y3 * Total_production_num / (1 - halfProduct_3_afterInspection_defect_rate ) * globals()[f'single_halfProduct_3_inspection_cost']
 
     total_halfProduct_inspection_cost = total_halfProduct_1_inspection_cost + total_halfProduct_2_inspection_cost + total_halfProduct_3_inspection_cost
 
@@ -197,9 +194,9 @@ def total_profie(params):
     total_product_dismantling_num = z2 * Total_production_num * product_afterInspection_defect_rate
     # 成品的拆解成本 
     total_product_dismantling_cost =(total_product_dismantling_num  * 
-                                    (globals()[f'single_product_dismantling_cost'] + globals()[f'single_product_inspection_cost'] +
-                                    (1 - y1)* globals()[f'single_halfProduct_1_inspection_cost'] + (1 - y2)* globals()[f'single_halfProduct_2_inspection_cost'] + (1 - y3)* globals()[f'single_halfProduct_3_inspection_cost']
-                                    ))       
+                                        (globals()[f'single_product_dismantling_cost'] + globals()[f'single_product_inspection_cost'] +
+                                        (1-k1)*(1 - y1)* globals()[f'single_halfProduct_1_inspection_cost'] + (1-k2)*(1 - y2)* globals()[f'single_halfProduct_2_inspection_cost'] +  (1-k3)*(1 - y3)* globals()[f'single_halfProduct_3_inspection_cost']
+                                        ))       
                                              
     # 半成品的拆解成本
     total_halfProduct_dismantling_cost = 0
@@ -238,7 +235,7 @@ def total_profie(params):
     # ======================================================================================
 
     # 总收入
-    Total_income = Total_production_num * globals()[f'single_product_market_price']
+    # Total_income = Total_production_num * globals()[f'single_product_market_price'] 
 
   
 
@@ -247,6 +244,7 @@ def total_profie(params):
 
  
     return(Total_profit)
+
 
 
 

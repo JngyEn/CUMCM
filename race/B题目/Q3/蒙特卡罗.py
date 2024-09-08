@@ -102,32 +102,6 @@ def total_profie(params):
     globals()['z2'] = z2
 
     
-    # 生产成品数，假设
-    Total_production_num = 10000
-    # ======================================================================================购买数量
-    # 半成品数量
-
-
-    # 半成品数量
-    halfProduct_1_num = Total_production_num / (1- globals()[f'halfProduct_1_defect_rate'] * (1 - y1))
-    halfProduct_2_num = Total_production_num / (1- globals()[f'halfProduct_2_defect_rate'] * (1 - y2))
-    halfProduct_3_num = Total_production_num / (1- globals()[f'halfProduct_3_defect_rate'] * (1 - y3))
-
-
-    # 零件购买数量
-    for index in range(1, 4):
-        # 动态生成变量名并进行计算
-        globals()[f'total_component_{index}_purchase_num'] = halfProduct_1_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
-
-    # 零件数量
-    for index in range(4, 7):
-        # 动态生成变量名并进行计算
-        globals()[f'total_component_{index}_purchase_num'] = halfProduct_2_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
-        
-    # 零件数量
-    for index in range(7, 9):
-        # 动态生成变量名并进行计算
-        globals()[f'total_component_{index}_purchase_num'] = halfProduct_3_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
     
 
 
@@ -151,6 +125,29 @@ def total_profie(params):
     # 成品检验决策后的次品率
     product_afterInspection_defect_rate = 1 - product_afterInspection_good_rate
 
+    # ======================================================================================购买数量
+    # 生产成品数，假设
+    Total_production_num = 10000
+    # 半成品数量
+    halfProduct_1_num = Total_production_num / (1- halfProduct_1_afterInspection_defect_rate * (1 - y1))
+    halfProduct_2_num = Total_production_num / (1- halfProduct_2_afterInspection_defect_rate * (1 - y2))
+    halfProduct_3_num = Total_production_num / (1- halfProduct_3_afterInspection_defect_rate * (1 - y3))
+
+
+    # 零件购买数量
+    for index in range(1, 4):
+        # 动态生成变量名并进行计算
+        globals()[f'total_component_{index}_purchase_num'] = halfProduct_1_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
+
+    # 零件数量
+    for index in range(4, 7):
+        # 动态生成变量名并进行计算
+        globals()[f'total_component_{index}_purchase_num'] = halfProduct_2_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
+        
+    # 零件数量
+    for index in range(7, 9):
+        # 动态生成变量名并进行计算
+        globals()[f'total_component_{index}_purchase_num'] = halfProduct_3_num / (1 - globals()[f'component_{index}_defect_rate'] * (1 - globals()[f'x{index}']))
 
     # ======================================================================================购买价格
     # 所有的零件购买价格
@@ -186,9 +183,9 @@ def total_profie(params):
     total_halfProduct_inspection_cost = 0
 
     # 所有半成品的检测成本
-    total_halfProduct_1_inspection_cost = y1 * Total_production_num / (1 - globals()[f'halfProduct_1_defect_rate'] ) * globals()[f'single_halfProduct_1_inspection_cost']
-    total_halfProduct_2_inspection_cost = y2 * Total_production_num / (1 - globals()[f'halfProduct_2_defect_rate'] ) * globals()[f'single_halfProduct_2_inspection_cost']
-    total_halfProduct_3_inspection_cost = y3 * Total_production_num / (1 - globals()[f'halfProduct_3_defect_rate'] ) * globals()[f'single_halfProduct_3_inspection_cost']
+    total_halfProduct_1_inspection_cost = y1 * Total_production_num / (1 - halfProduct_1_afterInspection_defect_rate ) * globals()[f'single_halfProduct_1_inspection_cost']
+    total_halfProduct_2_inspection_cost = y2 * Total_production_num / (1 - halfProduct_2_afterInspection_defect_rate ) * globals()[f'single_halfProduct_2_inspection_cost']
+    total_halfProduct_3_inspection_cost = y3 * Total_production_num / (1 - halfProduct_3_afterInspection_defect_rate ) * globals()[f'single_halfProduct_3_inspection_cost']
 
     total_halfProduct_inspection_cost = total_halfProduct_1_inspection_cost + total_halfProduct_2_inspection_cost + total_halfProduct_3_inspection_cost
 
@@ -216,9 +213,9 @@ def total_profie(params):
     total_product_dismantling_num = z2 * Total_production_num * product_afterInspection_defect_rate
     # 成品的拆解成本 
     total_product_dismantling_cost =(total_product_dismantling_num  * 
-                                    (globals()[f'single_product_dismantling_cost'] + globals()[f'single_product_inspection_cost'] +
-                                    (1 - y1)* globals()[f'single_halfProduct_1_inspection_cost'] + (1 - y2)* globals()[f'single_halfProduct_2_inspection_cost'] + (1 - y3)* globals()[f'single_halfProduct_3_inspection_cost']
-                                    ))       
+                                        (globals()[f'single_product_dismantling_cost'] + globals()[f'single_product_inspection_cost'] +
+                                        (1-k1)*(1 - y1)* globals()[f'single_halfProduct_1_inspection_cost'] + (1-k2)*(1 - y2)* globals()[f'single_halfProduct_2_inspection_cost'] +  (1-k3)*(1 - y3)* globals()[f'single_halfProduct_3_inspection_cost']
+                                        ))       
                                              
     # 半成品的拆解成本
     total_halfProduct_dismantling_cost = 0
@@ -275,7 +272,7 @@ iterations = 100000
 # 初始化变量以存储最佳策略和最大利润
 best_strategy = None
 max_profit = -np.inf
-
+profits = []  # 用于存储每次模拟的利润
 for i in range(iterations):
     random_strategy = generate_random_strategy()
     Total_profit = total_profie(random_strategy)
@@ -285,23 +282,36 @@ for i in range(iterations):
 
 
 # 输出最优结果
-# print("随机生成的策略参数：")
+
 print(f"最佳策略: {best_strategy}")
 # 输出策略中所有的 x, y, k, z 参数值
 
 # 输出 8 个 x 变量
 for i in range(8):
-    print(f"x{i+1} = {random_strategy[i]}")
+    print(f"x{i+1} = {best_strategy[i]}")
 
 # 输出 3 个 y 变量
 for i in range(8, 11):
-    print(f"y{i-7} = {random_strategy[i]}")
+    print(f"y{i-7} = {best_strategy[i]}")
 
 # 输出 3 个 k 变量
 for i in range(11, 14):
-    print(f"k{i-10} = {random_strategy[i]}")
+    print(f"k{i-10} = {best_strategy[i]}")
 
 # 输出 2 个 z 变量
 for i in range(14, 16):
-    print(f"z{i-13} = {random_strategy[i]}")
+    print(f"z{i-13} = {best_strategy[i]}")
 print(f"最大利润: {max_profit}")
+for i in range(iterations):
+    random_strategy = generate_random_strategy()
+    Total_profit = total_profie(random_strategy)
+    profits.append(Total_profit)  # 将每次的利润存储到列表中
+    
+
+# 计算利润的期望和标准差
+mean_profit = np.mean(profits)
+std_profit = np.std(profits)
+
+# 输出结果
+print(f"在 {iterations} 次模拟中的期望利润: {mean_profit}")
+print(f"在 {iterations} 次模拟中的利润标准差: {std_profit}")
